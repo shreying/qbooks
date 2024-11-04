@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         Int      @id @unique @default(autoincrement())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  address    String?
+  avatar     String   @default("https://cdn-icons-png.flaticon.com/128/3177/3177440.png")
+  role       UserRole @default(user)
+  favourites Book[]   @relation("UserFavourites")
+  cart       Book?    @relation("UserCart")
+  orders     Order[]  @relation("UserOrders") // Relation name specified here
+}
+
+model Book {
+  id        Int      @id @default(autoincrement())
+  title     String
+  author    String
+  genre     String
+  published DateTime
+  url       String?
+  price     Float
+  desc      String   @db.Text
+  language  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders     Order[] @relation("BookOrders") // Relation name specified here
+  favourites User[]  @relation("UserFavourites") // Reverse relation for favourites
+  cart       User?   @relation("UserCart", fields: [userId], references: [id]) // Reverse relation for cart
+  userId     Int?    @unique // Ensure userId is unique for one-to-one relation
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation("UserOrders", fields: [userId], references: [id], onDelete: Cascade) // Named relation here
+  userId    Int
+  book      Book        @relation("BookOrders", fields: [bookId], references: [id], onDelete: Cascade) // Named relation here
+  bookId    Int
+  status    OrderStatus @default(OrderPlaced)
+  createdAt DateTime    @default(now())
+}
+
+// Enums
+enum UserRole {
+  user
+  admin
+}
+
+enum OrderStatus {
+  OrderPlaced
+  OutForDelivery
+  Delivered
+  Canceled
+}
