@@ -1,6 +1,8 @@
 import React, { useState } from "react"; // Import useState
 import { Link } from "react-router-dom";
 import { FaGripLines } from "react-icons/fa";
+import { useSelector } from "react-redux";
+
 
 const Navbar = () => {
   const links = [
@@ -9,6 +11,10 @@ const Navbar = () => {
     { title: "Cart", link: "/cart" },
     { title: "Profile", link: "/profile" },
   ];
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  if (!isLoggedIn) {
+    links.splice(2,2);
+  }
   const [MobileNav, setMobileNav] = useState("hidden");
 
   // Toggle function for mobile menu
@@ -25,26 +31,39 @@ const Navbar = () => {
         </Link>
         <div className="nav-links-qbooks hidden md:flex items-center gap-4">
           {links.map((item, i) => (
-            <Link
+            < div className="flex items-center">
+              {item.title === "Profile" ?
+              <Link
+              to={item.link}
+              className="px-4 py-1 border border-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
+              key={i}
+            >
+              {item.title}
+            </Link> : <Link
               to={item.link}
               className="hover:text-blue-700 transition-all duration-300"
               key={i}
             >
               {item.title}
-            </Link>
+            </Link>} 
+            </div>
           ))}
-          <Link
-            to="/login"
-            className="px-4 py-1 border border-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/signup"
-            className="px-4 py-1 bg-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
-          >
-            Sign Up
-          </Link>
+          {isLoggedIn === false && (
+            <>
+              <Link
+              to="/login"
+              className="px-4 py-1 border border-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
+              >
+                Log In
+              </Link>
+              <Link
+              to="/signup"
+              className="px-4 py-1 bg-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
+              >
+                Sign Up
+              </Link>
+            </>
+            )}
         </div>
         {/* Mobile menu button */}
         <button
@@ -69,20 +88,24 @@ const Navbar = () => {
             {item.title}
           </Link>
         ))}
-        <Link
-          to="/login"
-          className="px-8 py-2 mb-8 text-3xl font-semibold border border-blue-500 rounded text-white hover:bg-white hover:text-zinc-800 transition-all duration-300"
-          onClick={toggleMobileNav}
-        >
-          Log In
-        </Link>
-        <Link
-          to="/signup"
-          className="px-8 py-2 mb-8 text-3xl font-semibold bg-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
-          onClick={toggleMobileNav}
-        >
-          Sign Up
-        </Link>
+        {isLoggedIn === false && (
+          <>
+            <Link
+            to="/login"
+            className="px-8 py-2 mb-8 text-3xl font-semibold border border-blue-500 rounded text-white hover:bg-white hover:text-zinc-800 transition-all duration-300"
+            onClick={toggleMobileNav}
+            >
+              Log In
+            </Link>
+            <Link
+            to="/signup"
+            className="px-8 py-2 mb-8 text-3xl font-semibold bg-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300"
+            onClick={toggleMobileNav}
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
       </div>
     </>
   );
